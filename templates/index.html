@@ -1,0 +1,79 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Movie Recommendation System</title>
+  <style>
+    body { font-family: Arial; margin: 2em; background-color: #f7f7f7; }
+    .container { max-width: 700px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; }
+    h2 { text-align: center; }
+    label, select, button { display: block; width: 100%; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #eee; }
+    .result { margin-top: 20px; padding: 10px; background-color: #e6f4ea; border-radius: 5px; }
+    .not-recommended { background-color: #fdecea; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Movie Recommendation System</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Movie</th>
+          {% for user in users %}
+            <th>{{ user }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for movie in movies %}
+          <tr>
+            <td>{{ movie }}</td>
+            {% for user in users %}
+              <td>
+                {% if ratings[user].get(movie) is not none %}
+                  {{ ratings[user].get(movie) }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+
+    <form method="post">
+      <label for="user">Select User:</label>
+      <select name="user" id="user">
+        {% for user in users %}
+          <option value="{{ user }}">{{ user }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="movie">Select Movie:</label>
+      <select name="movie" id="movie">
+        {% for movie in movies %}
+          <option value="{{ movie }}">{{ movie }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit">Predict Rating</button>
+    </form>
+
+    {% if prediction %}
+    <div class="result {% if prediction['user_based'] < 4 and prediction['item_based'] < 4 %}not-recommended{% endif %}">
+      <p><strong>User-Based CF:</strong> {{ prediction['user_based'] | round(2) }} -
+        {% if prediction['user_based'] >= 4 %}✅ Recommended{% else %}❌ Not Recommended{% endif %}</p>
+
+      <p><strong>Item-Based CF:</strong> {{ prediction['item_based'] | round(2) }} -
+        {% if prediction['item_based'] >= 4 %}✅ Recommended{% else %}❌ Not Recommended{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
